@@ -1,23 +1,23 @@
-<!-- chat.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Imitation Game Chat</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Firebase scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 <body class="flex flex-col h-screen bg-gray-100">
 
   <!-- Header -->
   <header class="bg-white p-4 shadow flex justify-between items-center">
-    <h2 class="text-xl font-bold">🧠 Guess Who's AI?</h2>
+    <h2 class="text-xl font-bold">🧠 Imitation Game</h2>
     <span id="username" class="text-sm text-gray-600"></span>
   </header>
 
   <!-- Chat Messages -->
-  <div id="chatBox" class="flex-1 p-4 overflow-y-auto space-y-2">
-    <!-- Messages will be added here -->
-  </div>
+  <div id="chatBox" class="flex-1 p-4 overflow-y-auto space-y-2"></div>
 
   <!-- Message Input -->
   <div class="p-4 bg-white flex items-center gap-2">
@@ -30,20 +30,48 @@
   </div>
 
   <script>
-    const nickname = localStorage.getItem('nickname');
-    document.getElementById('username').textContent = `You: ${nickname || 'Unknown'}`;
+    // 👤 Get nickname from local storage
+    const nickname = localStorage.getItem('nickname') || 'Anonymous';
+    document.getElementById('username').textContent = `You: ${nickname}`;
 
+    // 🔥 Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyC3ln78sBLRDVUs-ctwRTIkbsKtpEoR9qg",
+      authDomain: "imitation-game-ace.firebaseapp.com",
+      databaseURL: "https://imitation-game-ace-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "imitation-game-ace",
+      storageBucket: "imitation-game-ace.firebasestorage.app",
+      messagingSenderId: "861331707918",
+      appId: "1:861331707918:web:1a299ee40a0701c59d445f",
+      measurementId: "G-KR66XFXQRE"
+    };
+
+    // 🔌 Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // 📤 Send message to database
     function sendMessage() {
       const input = document.getElementById('messageInput');
       const text = input.value.trim();
       if (text) {
-        const messageElement = document.createElement('div');
-        messageElement.innerHTML = `<strong>${nickname}:</strong> ${text}`;
-        document.getElementById('chatBox').appendChild(messageElement);
+        db.ref("messages").push({
+          name: nickname,
+          text: text,
+          timestamp: Date.now()
+        });
         input.value = '';
-        messageElement.scrollIntoView({ behavior: "smooth" });
       }
     }
+
+    // 📥 Listen for new messages
+    db.ref("messages").on("child_added", snapshot => {
+      const msg = snapshot.val();
+      const msgElement = document.createElement("div");
+      msgElement.innerHTML = `<strong>${msg.name}:</strong> ${msg.text}`;
+      document.getElementById("chatBox").appendChild(msgElement);
+      msgElement.scrollIntoView({ behavior: "smooth" });
+    });
   </script>
 
 </body>
