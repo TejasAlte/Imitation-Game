@@ -74,5 +74,41 @@
     });
   </script>
 
+<!--   AI Chat -->
+  <script>
+  const isAI = Math.random() < 0.2; // ~20% chance the current user is AI
+  const isHost = nickname === 'Host'; // For testing: only 'Host' controls the AI
+
+  const aiReplies = [
+    "Interesting point.",
+    "Could you explain that?",
+    "I agree with that.",
+    "Why do you think so?",
+    "That's a good question!",
+    "Can you elaborate more?",
+    "I'm not sure I understand.",
+    "That’s fascinating!",
+    "Let me think about it..."
+  ];
+
+  // Mock AI responder
+  function startAIBot() {
+    setInterval(() => {
+      const randomReply = aiReplies[Math.floor(Math.random() * aiReplies.length)];
+      db.ref("messages").push({
+        name: "🤖 AI_Bot",
+        text: randomReply,
+        timestamp: Date.now()
+      });
+    }, Math.floor(Math.random() * 5000) + 5000); // 5–10 seconds
+  }
+
+  // Only one user (e.g., the first to join) will act as the AI trigger
+  if (isHost) {
+    startAIBot();
+  }
+</script>
+
+  
 </body>
 </html>
